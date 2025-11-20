@@ -1,42 +1,44 @@
 import random
+import re
+from collections import defaultdict, Counter
 
 class TrigramModel:
     def __init__(self):
-        """
-        Initializes the TrigramModel.
-        """
-        # TODO: Initialize any data structures you need to store the n-gram counts.
-       
-        pass
+        self.trigram_counts = defaultdict(Counter)
+        self.vocab = set()
 
     def fit(self, text):
-        """
-        Trains the trigram model on the given text.
+        text = text.lower()
+        text = re.sub(r"[^a-z0-9\s]", "", text)
+        tokens = text.split()
+        tokens = ["<s>", "<s>"] + tokens + ["</s>"]
 
-        Args:
-            text (str): The text to train the model on.
-        """
-        # TODO: Implement the training logic.
-        # This will involve:
-        # 1. Cleaning the text (e.g., converting to lowercase, removing punctuation).
-        # 2. Tokenizing the text into words.
-        # 3. Padding the text with start and end tokens.
-        # 4. Counting the trigrams.
-        pass
+        for i in range(len(tokens) - 2):
+            w1, w2, w3 = tokens[i], tokens[i+1], tokens[i+2]
+            self.trigram_counts[(w1, w2)][w3] += 1
+            self.vocab.add(w3)
+
+    def _next_word(self, w1, w2):
+        counts = self.trigram_counts.get((w1, w2))
+        if not counts:
+            return random.choice(list(self.vocab))
+        total = sum(counts.values())
+        r = random.randint(1, total)
+        s = 0
+        for word, c in counts.items():
+            s += c
+            if r <= s:
+                return word
 
     def generate(self, max_length=50):
-        """
-        Generates new text using the trained trigram model.
+        w1, w2 = "<s>", "<s>"
+        result = []
 
-        Args:
-            max_length (int): The maximum length of the generated text.
+        for _ in range(max_length):
+            w3 = self._next_word(w1, w2)
+            if w3 == "</s>":
+                break
+            result.append(w3)
+            w1, w2 = w2, w3
 
-        Returns:
-            str: The generated text.
-        """
-        # TODO: Implement the generation logic.
-        # This will involve:
-        # 1. Starting with the start tokens.
-        # 2. Probabilistically choosing the next word based on the current context.
-        # 3. Repeating until the end token is generated or the maximum length is reached.
-        pass
+        return " ".join(result)
