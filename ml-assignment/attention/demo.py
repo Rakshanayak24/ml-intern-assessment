@@ -1,18 +1,33 @@
 import numpy as np
-from attention import scaled_dot_product_attention
+from attention.attention import scaled_dot_product_attention
 
 def main():
-    # Example query, key, value matrices
-    Q = np.random.rand(3, 64)
-    K = np.random.rand(3, 64)
-    V = np.random.rand(3, 64)
+    """
+    Minimal runnable demo for Scaled Dot-Product Attention.
+    Shows input shapes, output shapes, and computed attention weights.
+    """
 
-    output, attention_weights = scaled_dot_product_attention(Q, K, V)
+    batch = 1
+    heads = 1
+    seq_len = 3
+    depth = 64
 
-    print("Attention Output:\n", output)
-    print("\nAttention Weights:\n", attention_weights)
+    # Random matrices
+    Q = np.random.rand(batch, heads, seq_len, depth)
+    K = np.random.rand(batch, heads, seq_len, depth)
+    V = np.random.rand(batch, heads, seq_len, depth)
+
+    print("Q shape:", Q.shape)
+    print("K shape:", K.shape)
+    print("V shape:", V.shape)
+
+    output, weights = scaled_dot_product_attention(Q, K, V)
+
+    print("\nAttention Weights:\n", weights)
+    print("\nAttention Output:\n", output)
 
 if __name__ == "__main__":
     main()
+
 
 
