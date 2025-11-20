@@ -1,4 +1,4 @@
-readme: |
+
   🧠 AI/ML Assignment — Trigram Language Model + Scaled Dot-Product Attention
 
   This repository contains two core components demonstrating foundations of classical NLP and modern deep learning:
@@ -38,12 +38,12 @@ readme: |
   venv\Scripts\activate         # Windows
 2️⃣ Install Dependencies
 pip install -r requirements.txt
+
 🟦 TASK 1 — TRIGRAM LANGUAGE MODEL
 
 ▶️ Run the Trigram Generator
 
 python -m src.generate
-
 
 This will:
 - Read corpus from data/example_corpus.txt
@@ -60,13 +60,11 @@ This will:
   `P(w3 | w1, w2) = count(w1, w2, w3) / sum(count(w1, w2, *))`
 - Text generation starts with `<s>, <s>`, samples next words, and stops at `</s>` or max length
 
-
 (Full explanation is included in evaluation.md.)
 
 🧪 Run Pytests
 
 pytest -v
-
 
 Validates:
 - Model training
@@ -74,12 +72,14 @@ Validates:
 - Empty text handling
 - Short text behavior
 
+
+behavior
+
 🟧 TASK 2 — SCALED DOT-PRODUCT ATTENTION (Optional)
 
 Uses the transformer formula:
 
 Attention(Q, K, V) = softmax( QKᵀ / √d_k ) · V
-
 
 Where:
 - Q → Queries
@@ -91,7 +91,6 @@ Where:
 
 cd attention
 python demo_attention.py
-
 
 The script:
 - Creates random Q, K, V matrices
@@ -114,4 +113,3 @@ print(output)
 print(weights)
 
 
-If you want, I can also generate a **GitHub Pages–styled README**, **YAML for CI**, or **full repo ZIP**.
