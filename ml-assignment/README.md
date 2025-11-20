@@ -100,8 +100,6 @@
     Please see **evaluation.md** for the required 1-page design summary.
 
   
-    author: "Raksha Nayak"
-    purpose: "Submission-ready ML/NLP project for internship selection"
-    last_updated: "2025-11-21"
+  
 
 
