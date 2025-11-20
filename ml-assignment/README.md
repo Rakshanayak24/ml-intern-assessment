@@ -1,88 +1,102 @@
-🌟 Trigram Language Model + Scaled Dot-Product Attention
-Desible AI/ML Internship Assessment — Completed by Raksha Nayak
+ # Trigram Language Model and Scaled Dot-Product Attention
+    Desible AI/ML Internship Assessment — Implementation by Raksha Nayak
 
-This repository contains my end-to-end implementation of both tasks from the Desible AI / ML Internship Assessment:
+    This repository contains my implementations for both tasks in the Desible AI/ML Internship Assessment:
 
-✔ Task 1 — Trigram (N=3) Language Model (from scratch)
-✔ Task 2 — Scaled Dot-Product Attention using NumPy only (optional, completed)
+    1. Trigram (N=3) Language Model built from scratch
+    2. Scaled Dot-Product Attention implemented using NumPy
 
-The project is modular, clean, unit-tested, and includes runnable demos.
+    Both parts are modular, easy to run, and include demo scripts.
 
-📥 Run in Google Colab (Recommended)
+    ------------------------------------------------------------
 
-You can run the full project inside Colab using:
+    ## Running in Google Colab
 
-!git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
-%cd ml-intern-assessment/ml-assignment
-!pip install -r requirements.txt
+    Run the full project inside Google Colab:
 
+    ```bash
+    !git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
+    %cd ml-intern-assessment/ml-assignment
+    !pip install -r requirements.txt
+    ```
 
-Now you're ready to run the model or attention demo.
+    ------------------------------------------------------------
 
-🏗️ Project Structure
-ml-assignment/
-│
-├── data/
-│   └── example_corpus.txt
-│
-├── src/
-│   ├── ngram_model.py        # Trigram model implementation
-│   ├── utils.py
-│   └── generate.py           # Train + generate text
-│
-├── attention/
-│   ├── attention.py          # Scaled Dot-Product Attention (NumPy-only)
-│   ├── demo.py               # Demo script
-│   └── __init__.py
-│
-├── tests/
-│   └── test_ngram.py         # Unit tests
-│
-├── README.md                 # Documentation
-└── evaluation.md             # 1-page design choices summary
+    ## Project Structure
 
-🚀 Task 1 — Trigram Language Model
-📌 Install Dependencies
-pip install -r requirements.txt
+    ```
+    ml-assignment/
+    │
+    ├── data/
+    │   └── example_corpus.txt
+    │
+    ├── src/
+    │   ├── ngram_model.py        # Trigram model implementation
+    │   ├── utils.py
+    │   └── generate.py           # Train + text generation pipeline
+    │
+    ├── attention/
+    │   ├── attention.py          # NumPy Scaled Dot-Product Attention
+    │   ├── demo.py               # Demo script
+    │   └── __init__.py
+    │
+    ├── tests/
+    │   └── test_ngram.py         # Unit tests
+    │
+    ├── README.md
+    └── evaluation.md
+    ```
 
-📌 Train & Generate Text
-python src/generate.py
+    ------------------------------------------------------------
 
+    ## Task 1 — Trigram Language Model
 
-This will:
+    ### Train & Generate
 
-Load & clean the corpus
+    ```bash
+    python src/generate.py
+    ```
 
-Build trigram counts
+    This script:
+    - preprocesses the corpus  
+    - builds trigram counts  
+    - converts counts to probabilities  
+    - generates new text using weighted sampling  
 
-Compute probabilities
+    ### Run Unit Tests
 
-Generate new text using probabilistic sampling
+    ```bash
+    pytest tests/test_ngram.py
+    ```
 
-🧪 Run Unit Tests
-pytest tests/test_ngram.py
+    ------------------------------------------------------------
 
+    ## Task 2 — Scaled Dot-Product Attention (NumPy)
 
-All tests should pass with the final implementation.
+    Implementation located in:
 
-🧠 Task 2 — Scaled Dot-Product Attention (NumPy Only)
+    ```
+    attention/attention.py
+    ```
 
-Implementation located in:
+    ### Run Demo
 
-attention/attention.py
+    ```bash
+    python attention/demo.py
+    ```
 
+    Example Output:
 
-Run the demo:
+    ```
+    Q = [[1 0]]
+    K = [[1 1]]
+    V = [[0.5 2. ]]
 
-python attention/demo.py
+    Attention Weights:
+    [[1.]]
 
-Example Output:
-Q = [[1 0]]
-K = [[1 1]]
-V = [[0.5 2. ]]
+    Attention Output:
+    [[0.5 2. ]]
+    ```
 
-Attention Weights:
-[[1.]]
-
-Attention Output:
-[[0.5 2. ]]
+    ------------------------------------------------------------
