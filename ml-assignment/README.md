@@ -1,102 +1,145 @@
- # Trigram Language Model and Scaled Dot-Product Attention
-    Desible AI/ML Internship Assessment — Implementation by Raksha Nayak
+🧠 AI/ML Assignment — Trigram Language Model + Scaled Dot-Product Attention
 
-    This repository contains my implementations for both tasks in the Desible AI/ML Internship Assessment:
+This repository contains two core components demonstrating foundations of classical NLP and modern deep learning:
 
-    1. Trigram (N=3) Language Model built from scratch
-    2. Scaled Dot-Product Attention implemented using NumPy
+Task 1 — Trigram Language Model (N=3)
+Implemented fully from scratch using Python, including text preprocessing, n-gram counting, probability computation, and sampling-based text generation.
 
-    Both parts are modular, easy to run, and include demo scripts.
+Task 2 — Scaled Dot-Product Attention (Optional)
+A NumPy-only implementation of the core operation behind Transformer architectures (BERT, GPT, etc.), including a demo script.
 
-    ------------------------------------------------------------
+This assignment showcases clean code design, probabilistic modeling, understanding of linear algebra, and modular project structure.
 
-    ## Running in Google Colab
+📂 Project Structure
+ml-assignment/
+│
+├── data/
+│   └── example_corpus.txt
+│
+├── src/
+│   ├── ngram_model.py
+│   ├── utils.py
+│   └── generate.py
+│
+├── attention/
+│   ├── attention.py
+│   └── demo_attention.py
+│
+├── tests/
+│   └── test_ngram.py
+│
+├── requirements.txt
+├── evaluation.md
+└── README.md   ← (this file)
 
-    Run the full project inside Google Colab:
+🚀 How to Run the Project
+1️⃣ Create and Activate Virtual Environment
+python3 -m venv venv
+source venv/bin/activate       # Linux/Mac
+venv\Scripts\activate          # Windows
 
-    ```bash
-    !git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
-    %cd ml-intern-assessment/ml-assignment
-    !pip install -r requirements.txt
-    ```
+2️⃣ Install Dependencies
+pip install -r requirements.txt
 
-    ------------------------------------------------------------
+🟦 TASK 1 — TRIGRAM LANGUAGE MODEL
+▶️ How to Run the Trigram Generator
+python -m src.generate
 
-    ## Project Structure
 
-    ```
-    ml-assignment/
-    │
-    ├── data/
-    │   └── example_corpus.txt
-    │
-    ├── src/
-    │   ├── ngram_model.py        # Trigram model implementation
-    │   ├── utils.py
-    │   └── generate.py           # Train + text generation pipeline
-    │
-    ├── attention/
-    │   ├── attention.py          # NumPy Scaled Dot-Product Attention
-    │   ├── demo.py               # Demo script
-    │   └── __init__.py
-    │
-    ├── tests/
-    │   └── test_ngram.py         # Unit tests
-    │
-    ├── README.md
-    └── evaluation.md
-    ```
+This will:
 
-    ------------------------------------------------------------
+Read corpus from data/example_corpus.txt
 
-    ## Task 1 — Trigram Language Model
+Clean and tokenize text
 
-    ### Train & Generate
+Train a trigram language model
 
-    ```bash
-    python src/generate.py
-    ```
+Print generated text using probabilistic sampling
 
-    This script:
-    - preprocesses the corpus  
-    - builds trigram counts  
-    - converts counts to probabilities  
-    - generates new text using weighted sampling  
+🔧 How It Works (Short Explanation)
 
-    ### Run Unit Tests
+Text is cleaned → lowercased, punctuation removed
 
-    ```bash
-    pytest tests/test_ngram.py
-    ```
+<s> and <e> tokens mark sentence boundaries
 
-    ------------------------------------------------------------
+Trigrams (w1, w2, w3) are counted in a nested dictionary
 
-    ## Task 2 — Scaled Dot-Product Attention (NumPy)
+Probabilities are computed as:
 
-    Implementation located in:
+P(w3 | w1, w2) = count(w1, w2, w3) / sum(count(w1, w2, *))
 
-    ```
-    attention/attention.py
-    ```
 
-    ### Run Demo
+Text generation starts with <s>, <s> and samples the next words based on these probabilities
 
-    ```bash
-    python attention/demo.py
-    ```
+Continues until <e> or max_length reached
 
-    Example Output:
+A full 1-page explanation goes in evaluation.md.
 
-    ```
-    Q = [[1 0]]
-    K = [[1 1]]
-    V = [[0.5 2. ]]
+🧪 Run Pytests
+pytest -v
 
-    Attention Weights:
-    [[1.]]
 
-    Attention Output:
-    [[0.5 2. ]]
-    ```
+Pytests validate:
 
-    ------------------------------------------------------------
+model training
+
+text generation
+
+empty text handling
+
+short text behavior
+
+🟧 TASK 2 — SCALED DOT-PRODUCT ATTENTION (Optional)
+
+This task implements the mathematical attention mechanism from Transformers using only NumPy.
+
+Formula:
+
+Attention(Q, K, V) = softmax( QKᵀ / √d_k ) · V
+
+
+Where:
+
+Q → Queries
+
+K → Keys
+
+V → Values
+
+d_k → Key dimensionality
+
+▶️ How to Run the Attention Demo
+
+Navigate to the attention/ directory:
+
+cd attention
+
+
+Run:
+
+python demo_attention.py
+
+
+The script will:
+
+Create random Q, K, V matrices
+
+Call scaled_dot_product_attention()
+
+Print:
+
+Attention Output
+
+Attention Weights (Softmax matrix)
+
+🧪 Manual Testing (Optional)
+import numpy as np
+from attention import scaled_dot_product_attention
+
+Q = np.random.rand(1, 3, 4)
+K = np.random.rand(1, 3, 4)
+V = np.random.rand(1, 3, 4)
+
+output, weights = scaled_dot_product_attention(Q, K, V)
+print(output)
+print(weights)
