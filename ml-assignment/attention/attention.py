@@ -1,3 +1,5 @@
+import numpy as np
+
 def __call__(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray,
              mask: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
     """
