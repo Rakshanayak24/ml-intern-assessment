@@ -69,7 +69,7 @@ To train on your own dataset:
 ```powershell
 data/example_corpus.txt
 ```
-*Then run again:
+* Then run again:
 ```powershell
 python -m src.generate
 ```
