@@ -24,11 +24,3 @@ cd ml-intern-assessment/ml-assignment
 python -m pip install -r requirements.txt
 
 
-
-
-
-
-  
-  
-
-
