@@ -1,7 +1,9 @@
 ## Evaluation
 
 This document provides a clear and concise summary of the design decisions behind the Trigram Language Model implemented for the ML Intern Assessment. The focus is on correctness, efficiency, readability, and demonstrating practical understanding of classical NLP modeling.
----
+
+----
+
 ### 1. Storage of N-gram Counts
 
 To efficiently learn and query trigram relationships, the model uses a nested dictionary structure:
@@ -19,6 +21,7 @@ To efficiently learn and query trigram relationships, the model uses a nested di
 * Ideal for an academic/assessment setting where readability matters as much as performance.
 
 This decision balances clarity, speed, and extensibility, making the model simple to follow yet efficient in practice.
+
 ---
 
 ### 2. Text Cleaning, Padding & Unknown Word Handling
@@ -55,7 +58,9 @@ Instead of dropping unseen tokens, the model uses a tiered fallback strategy:
 3. Unigram distribution from entire corpus
 
 This avoids dead ends during generation and keeps sampling robust without requiring heavy smoothing.
+
 ---
+
 ### 3. Generation Logic & Probabilistic Sampling
 
 The ```generate()``` function is designed to be predictable, probabilistic, and interpretable.
@@ -88,7 +93,9 @@ Uses ```random.choices(population, weights=...) ```(or cumulative-sum walk) to e
 ## Why this matters
 
 This approach produces human-like, corpus-dependent text while staying faithful to statistical language modeling principles. It also demonstrates understanding of randomness, distributions, and generative modeling.
+
 ---
+
 ## 4. Additional Design Decisions & Trade-offs
 ## Precomputation
 
