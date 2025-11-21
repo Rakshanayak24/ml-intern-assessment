@@ -1,38 +1,19 @@
-import random
-import numpy as np
+from ngram_model import TrigramModel  # adjust import according to your repo
 
-def generate(self, max_length=800):
-    """Generate text using probabilistic trigram sampling."""
-    if not self.model:
-        return ""
+# 1. Create model instance
+model = TrigramModel()
 
-    # Start with padding tokens
-    w1, w2 = "<s>", "<s>"
-    generated = []
+# 2. Load or train the model
+model.train("../data/example_corpus.txt")  # or however training is done
 
-    for _ in range(max_length):
-        key = (w1, w2)
-        if key not in self.model:
-            break
+# 3. Generate text
+output_text = model.generate(max_length=800)
 
-        next_words = self.model[key]
-        words = list(next_words.keys())
-        counts = np.array(list(next_words.values()), dtype=float)
+# 4. Print or save
+print(output_text)
 
-        # Convert counts → probability distribution
-        probs = counts / counts.sum()
+with open("generated_text.txt", "w", encoding="utf-8") as f:
+    f.write(output_text)
 
-        # Sample probabilistically instead of greedy max
-        next_word = np.random.choice(words, p=probs)
-
-        if next_word == "</s>":
-            break
-
-        generated.append(next_word)
-
-        # Shift context
-        w1, w2 = w2, next_word
-
-    return " ".join(generated)
 
 
