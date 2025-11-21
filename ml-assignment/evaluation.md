@@ -8,7 +8,7 @@ This document provides a clear and concise summary of the design decisions behin
 
 To efficiently learn and query trigram relationships, the model uses a nested dictionary representation:
 
-counts[(w1, w2)][w3] = frequency
+```counts[(w1, w2)][w3] = frequency```
 
 
 ### Why this design?
