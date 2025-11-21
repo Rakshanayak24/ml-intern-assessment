@@ -18,9 +18,8 @@ This README explains how to run the test-suite and the example generator include
 
 ## Install Dependencies
 
-```bash
+```powershell
 git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
 cd ml-intern-assessment/ml-assignment
 python -m pip install -r requirements.txt
-
-
+```
