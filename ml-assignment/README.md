@@ -20,7 +20,7 @@ This README explains how to run the test-suite and the example generator include
 
 ```powershell
 git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
-cd ml-intern-assessment/ml-assignment
+cd ml-intern-assessment
 python -m pip install -r requirements.txt
 ```
 ## Create Virtual Environment (Optional)
@@ -71,6 +71,7 @@ data/example_corpus.txt
 ```
 * Then run again:
 ```powershell
+cd ml-assignment
 python -m src.generate
 ```
 ## Part 2 — Run Scaled Dot-Product & Multi-Head Attention
