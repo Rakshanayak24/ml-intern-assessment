@@ -1,103 +1,64 @@
+project: "ML Intern Assessment – Trigram Language Model & Attention Mechanisms"
 
-  🧠 AI/ML Assignment — Trigram Language Model + Scaled Dot-Product Attention
+steps:
 
-  This repository contains two core components demonstrating foundations of classical NLP and modern deep learning:
+  - step: "Clone the Repository"
+    commands:
+      - git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
+      - cd ml-intern-assessment/ml-assignment
 
-  **Task 1 — Trigram Language Model (N=3)**
-  Implemented fully from scratch using Python, including text preprocessing, n-gram counting, probability computation, and sampling-based text generation.
+  - step: "Create and Activate Virtual Environment"
+    commands:
+      - python -m venv venv
+      - source venv/bin/activate        # Linux / Mac
+      - venv\Scripts\activate           # Windows PowerShell
 
-  **Task 2 — Scaled Dot-Product Attention (Optional)**
-  A NumPy-only implementation of the core operation behind Transformer architectures (BERT, GPT, etc.), including a demo script.
-# Trigram Language Model + Self-Attention Module  
+  - step: "Install Dependencies"
+    commands:
+      - pip install -r requirements.txt
 
-    ---
+  - step: "Project Structure"
+    tree:
+      - src/
+          - generate.py
+          - ngram_model.py
+          - utils.py
+          - __init__.py
+      - attention/
+          - attention.py
+          - demo.py
+          - __init__.py
+      - data/
+          - example_corpus.txt
+      - tests/
+      - evaluation.md
+      - README.md
 
-    ## 📌 Project Structure
+  - step: "Run Part 1 – Trigram Language Model"
+    description: "Trains the model on example_corpus.txt and generates text."
+    commands:
+      - python -m src.generate
 
-    ```
-    .
-    ├── data/
-    │   └── input.txt
-    ├── trigram/
-    │   ├── model.py
-    │   ├── utils.py
-    │   └── __init__.py
-    ├── attention/
-    │   ├── attention.py
-    │   └── __init__.py
-    ├── README.md
-    ├── evaluation.md
-    └── config.yml
-    ```
+  - step: "Customize Training Corpus"
+    description: "Replace example_corpus.txt with your own larger dataset."
+    file_to_edit: "data/example_corpus.txt"
+    commands:
+      - python -m src.generate
 
-    ---
+  - step: "Run Part 2 – Scaled Dot-Product & Multi-Head Attention"
+    description: "Runs NumPy-based attention mechanism demo."
+    commands:
+      - python -m attention.demo
 
-    # 🚀 How to Run (Both Models)
+  - step: "Expected Output"
+    outputs:
+      - "Scaled Dot-Product Attention Output Matrix"
+      - "Attention Weights Matrix"
+      - "Multi-Head Attention Output"
+      - "Per-head Attention Weight Shapes"
 
-    ## 1️⃣ **Run Trigram Language Model**
+ "
 
-    ### **Step 1 — Install requirements**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    (Only uses standard Python libraries; no heavy dependencies.)
-
-    ### **Step 2 — Train the model**
-    ```bash
-    python trigram/model.py --train data/input.txt --save model.pkl
-    ```
-
-    ### **Step 3 — Generate text**
-    ```bash
-    python trigram/model.py --generate model.pkl --seed "the world"
-    ```
-
-    Output sample:
-    ```
-    the world is full of amazing discoveries waiting to be explored ...
-    ```
-
-    ---
-
-    ## 2️⃣ **Run the Attention Module**
-
-    ### **Step 1 — Simply import and run**
-    ```bash
-    python attention/attention.py
-    ```
-
-    ### **What it does**
-    - Builds token embeddings  
-    - Computes Query–Key–Value  
-    - Applies scaled dot-product attention  
-    - Returns attention-weighted representations  
-
-    ### **Example output**
-    ```
-    Attention weights:
-    [[0.21 0.54 0.25]
-     [0.33 0.18 0.49]
-     [0.40 0.12 0.48]]
-
-    Context vectors:
-    [[...token 1...]
-     [...token 2...]
-     [...token 3...]]
-    ```
-
-    ---
-
-    # 🧠 Summary of What This Repo Demonstrates
-    ✔ Understanding of classical NLP modeling (Trigrams)  
-    ✔ Ability to implement sampling-based text generation  
-    ✔ Working knowledge of attention (core foundation of Transformers)  
-    ✔ Clean code and reproducible execution  
-    ✔ Real-world ML workflow (training → saving → loading → inference)  
-
-    ---
-
-    # 📄 Evaluation  
-    Please see **evaluation.md** for the required 1-page design summary.
 
   
   
