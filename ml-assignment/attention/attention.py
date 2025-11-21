@@ -1,48 +1,60 @@
-"""
-Scaled Dot-Product Attention (NumPy only)
+def __call__(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray,
+             mask: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Apply multi-head attention.
 
-Function:
-    scaled_dot_product_attention(Q, K, V, mask=None)
+    Args:
+        Q, K, V: (batch, seq_len, d_model)
+        mask: optional; broadcastable to (batch, seq_q, seq_k)
+              or (batch, 1, 1, seq_k)
 
-Inputs:
-    Q: numpy array of shape (batch, seq_len_q, d_k)
-    K: numpy array of shape (batch, seq_len_k, d_k)
-    V: numpy array of shape (batch, seq_len_v, d_v)  # seq_len_k == seq_len_v typically
-    mask: (optional) numpy array broadcastable to (batch, seq_len_q, seq_len_k)
-          mask positions with value 0 will be masked out (set to large negative score)
+    Returns:
+        output: (batch, seq_q, d_model)
+        attn_weights: (batch, num_heads, seq_q, seq_k)
+    """
 
-Returns:
-    output: numpy array of shape (batch, seq_len_q, d_v)
-    attn_weights: numpy array of shape (batch, seq_len_q, seq_len_k)
-"""
-import numpy as np
+    batch_size = Q.shape[0]
 
-def scaled_dot_product_attention(Q, K, V, mask=None):
-    # Q, K, V: (batch, seq_len, d_k or d_v)
-    # 1) compute raw scores = Q @ K^T
-    #    For batched inputs, we use np.matmul which handles batch dims.
-    d_k = Q.shape[-1]
-    # scores shape: (batch, seq_len_q, seq_len_k)
-    scores = np.matmul(Q, K.transpose(0, 2, 1))  # (batch, seq_q, seq_k)
+    # Linear projections
+    Q_lin = Q @ self.Wq
+    K_lin = K @ self.Wk
+    V_lin = V @ self.Wv
 
-    # 2) scale scores by sqrt(d_k)
-    scores = scores / np.sqrt(d_k)
+    # Split into heads
+    Q_heads = self._split_heads(Q_lin)
+    K_heads = self._split_heads(K_lin)
+    V_heads = self._split_heads(V_lin)
 
-    # 3) apply mask (if provided) by setting masked positions to a very large negative value
+    # Expand 3D mask → 4D
+    if mask is not None and mask.ndim == 3:
+        mask = mask[:, None, :, :]
+
+    # Merge heads with batch dim
+    b, h, sq, d = Q_heads.shape
+    Q_resh = Q_heads.reshape(b * h, sq, d)
+    K_resh = K_heads.reshape(b * h, K_heads.shape[2], d)
+    V_resh = V_heads.reshape(b * h, V_heads.shape[2], d)
+
+    # Prepare mask for vectorized attention
     if mask is not None:
-        # mask is expected to have 1s for valid positions and 0s for masked positions,
-        # but function supports any array broadcastable to scores shape.
-        # We map mask == 0 -> -1e9; mask != 0 leaves scores unchanged.
-        scores = np.where(mask, scores, -1e9)
+        mask_resh = np.repeat(mask, self.num_heads, axis=1)
+        mask_resh = mask_resh.reshape(b * h, mask.shape[-2], mask.shape[-1])
+    else:
+        mask_resh = None
 
-    # 4) numerically stable softmax along last axis (seq_len_k)
-    # subtract max for numerical stability
-    max_scores = np.max(scores, axis=-1, keepdims=True)
-    exp_scores = np.exp(scores - max_scores)
-    sum_exp = np.sum(exp_scores, axis=-1, keepdims=True)
-    attn_weights = exp_scores / (sum_exp + 1e-9)  # (batch, seq_q, seq_k)
+    # Apply scaled dot-product attention
+    output_resh, attn_resh = scaled_dot_product_attention(
+        Q_resh, K_resh, V_resh, mask=mask_resh
+    )
 
-    # 5) attention output = attn_weights @ V
-    output = np.matmul(attn_weights, V)  # (batch, seq_q, d_v)
+    # Reshape outputs back to (batch, heads, seq, depth)
+    output_heads = output_resh.reshape(b, h, sq, d)
+    attn_heads = attn_resh.reshape(b, h, sq, K_heads.shape[2])
 
-    return output, attn_weights
+    # Combine heads
+    combined = self._combine_heads(output_heads)
+
+    # Final projection
+    out = combined @ self.Wo
+
+    return out, attn_heads
