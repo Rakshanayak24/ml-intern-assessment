@@ -1,59 +1,82 @@
-evaluation_md: |
-    # Evaluation — Design Choices Summary (1-Page)
+evaluation: "Design Choices for Trigram Language Model"
 
-    ## 1. **Storage of N-gram Counts**
-    I store all trigram counts in a nested dictionary:
+ngram_storage:
+  approach: "Nested dictionaries with tuple keys"
+  examples:
+    unigram: "count[w1]"
+    bigram: "count[(w1, w2)]"
+    trigram: "count[(w1, w2, w3)]"
+  reasons:
+    - "O(1) average lookup time"
+    - "Cleaner probability computation"
+    - "Avoids string concatenation overhead"
+    - "Efficient for iteration and sampling"
 
-    ```
-    counts[(w1, w2)][w3] = frequency
-    ```
-    - Fast O(1) lookup  
-    - Easy to convert counts into probability distributions  
-    - Works efficiently for large corpora  
+text_cleaning_preprocessing:
+  normalization:
+    - "Converted text to lowercase"
+    - "Whitespace-based tokenization"
+  padding:
+    start_tokens: ["<START>", "<START>"]
+    end_token: "<END>"
+    reason: "Preserves sentence boundaries and enables early trigram formation"
+  unknown_words:
+    token: "<UNK>"
+    reason: "Prevents zero-probability issues caused by unseen tokens"
 
-    Bigrams and unigrams are stored similarly for backoff handling.
+probability_computation:
+  formula: "P(w3 | w1, w2) = count(w1, w2, w3) / count(w1, w2)"
+  smoothing_strategy:
+    type: "Backoff"
+    steps:
+      - "Try trigram probability"
+      - "Fallback to bigram"
+      - "Fallback to unigram"
+      - "If all fail → return <UNK>"
+  reason:
+    - "Avoids dead ends during generation"
+    - "Simpler than full Kneser–Ney but effective for this task"
 
-    ---
+generation_strategy:
+  process:
+    - "Start with context = [<START>, <START>]"
+    - "Retrieve candidate next words based on trigram context"
+    - "Build probability distribution from counts"
+    - "Sample next token using numpy multinomial sampling"
+    - "Slide context window forward"
+    - "Stop at <END> or max length"
+  benefits:
+    - "Produces non-deterministic, varied text"
+    - "Works even with sparse datasets"
+  paragraph_generation:
+    method: "Generate multiple sentences and join them"
+    reason: "Ensures coherent multi-sentence output"
 
-    ## 2. **Text Cleaning, Padding, Unknown Words**
-    - Lowercasing is applied to ensure consistency.
-    - All punctuation except sentence-ending markers is removed.
-    - Sentences are padded as:  
-      ```
-      <s> <s> ... </s>
-      ```
-    - A minimum frequency threshold introduces `<UNK>` tokens to avoid infinite sparsity.
-    - This improves robustness during generation.
+additional_design_choices:
+  efficient_counting:
+    description: "Single pass over corpus to build unigram, bigram, and trigram counts"
+  corpus_flexibility:
+    description: "User can replace example_corpus.txt with any dataset without modifying code"
+  modular_structure:
+    layout:
+      - "src/ → trigram implementation"
+      - "attention/ → attention mechanisms"
+    benefit: "Clean separation of tasks and easy evaluation"
 
-    ---
+attention_module_summary:
+  components:
+    - "Scaled Dot-Product Attention (NumPy)"
+    - "Multi-Head Attention with head splitting and combining"
+  features:
+    - "Vectorized matrix operations"
+    - "Linear projections using NumPy arrays"
+    - "Per-head attention weight output"
+  reason: "Demonstrates core transformer mechanisms without external ML frameworks"
 
-    ## 3. **Generate Function + Probabilistic Sampling**
-    - For each step, the model considers the last two tokens `(w1, w2)`.
-    - Probabilities are computed as:
-      ```
-      P(w3 | w1, w2) = count(w1, w2, w3) / count(w1, w2)
-      ```
-    - Instead of greedy decoding, multinomial sampling is used:
-      ```
-      next_word = random.choice(words, p=probabilities)
-      ```
-    - This produces more diverse and natural text.
+conclusion:
+  highlights:
+    - "Simple, robust, and efficient trigram model"
+    - "Handles rare words and sparse data gracefully"
+    - "Clear modularity for both assignment parts"
+    - "Stable and extendable design suitable for larger corpora"
 
-    ---
-
-    ## 4. **Self-Attention Design**
-    - I used standard **scaled dot-product attention**:
-      ```
-      Attention(Q,K,V) = softmax(QKᵀ / sqrt(d_k)) V
-      ```
-    - Dimensions are kept small for clarity.
-    - Implemented from scratch using only NumPy.
-    - Demonstrates understanding of Transformer fundamentals.
-
-    ---
-
-    ## 5. **Other Key Decisions**
-    - The repository is modular: `trigram/` and `attention/` separated.
-    - Configurable file paths via `config.yml`.
-    - Code follows clean, readable, internship-ready structure.
-    - Generation and training can run independently.
