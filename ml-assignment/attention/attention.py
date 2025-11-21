@@ -1,82 +1,65 @@
 import numpy as np
 
-
 class ScaledDotProductAttention:
-    def __call__(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray, mask=None):
-        """
-        Compute scaled dot-product attention.
-        """
+    def __call__(self, Q, K, V):
         d_k = Q.shape[-1]
 
-        # QK^T
         scores = np.matmul(Q, K.transpose(0, 2, 1)) / np.sqrt(d_k)
+        weights = np.exp(scores) / np.sum(np.exp(scores), axis=-1, keepdims=True)
+        output = np.matmul(weights, V)
 
-        # Optional masking
-        if mask is not None:
-            scores = np.where(mask == 0, -1e9, scores)
-
-        # Softmax
-        attention_weights = np.exp(scores) / np.sum(np.exp(scores), axis=-1, keepdims=True)
-
-        # Weighted sum
-        output = np.matmul(attention_weights, V)
-
-        return output, attention_weights
+        return output, weights
 
 
 class MultiHeadAttention:
-    def __init__(self, d_model: int, num_heads: int):
-        assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
-
+    def __init__(self, d_model=4, num_heads=2):
+        assert d_model % num_heads == 0
         self.num_heads = num_heads
-        self.d_k = d_model // num_heads
+        self.depth = d_model // num_heads
 
-        # Initialize weights
-        self.W_Q = np.random.randn(num_heads, d_model, self.d_k)
-        self.W_K = np.random.randn(num_heads, d_model, self.d_k)
-        self.W_V = np.random.randn(num_heads, d_model, self.d_k)
-        self.W_O = np.random.randn(num_heads * self.d_k, d_model)
+        # Simple linear projections (random for demo)
+        self.Wq = np.random.rand(d_model, d_model)
+        self.Wk = np.random.rand(d_model, d_model)
+        self.Wv = np.random.rand(d_model, d_model)
 
         self.attention = ScaledDotProductAttention()
 
-    def split_heads(self, X):
+    def split_heads(self, x):
         """
-        Split (batch, seq_len, d_model) into (batch, num_heads, seq_len, d_k)
+        x shape: (batch, seq_len, d_model)
+        return: (batch, num_heads, seq_len, depth)
         """
-        batch, seq_len, d_model = X.shape
-        X_split = X.reshape(batch, seq_len, self.num_heads, self.d_k)
-        return X_split.transpose(0, 2, 1, 3)
-
-    def combine_heads(self, X):
-        """
-        Combine (batch, num_heads, seq_len, d_k) to (batch, seq_len, d_model)
-        """
-        batch, num_heads, seq_len, d_k = X.shape
-        X_transposed = X.transpose(0, 2, 1, 3)
-        return X_transposed.reshape(batch, seq_len, num_heads * d_k)
+        batch, seq_len, d_model = x.shape
+        x = x.reshape(batch, seq_len, self.num_heads, self.depth)
+        return x.transpose(0, 2, 1, 3)
 
     def __call__(self, Q, K, V):
-        """
-        Forward pass
-        """
-        batch = Q.shape[0]
+        # Linear projections
+        Q = np.matmul(Q, self.Wq)
+        K = np.matmul(K, self.Wk)
+        V = np.matmul(V, self.Wv)
 
-        Q_heads = np.matmul(Q, self.W_Q)
-        K_heads = np.matmul(K, self.W_K)
-        V_heads = np.matmul(V, self.W_V)
+        # Split heads
+        Q = self.split_heads(Q)
+        K = self.split_heads(K)
+        V = self.split_heads(V)
 
+        # Apply attention per head
         outputs = []
-        weights = []
+        weights_list = []
 
-        for i in range(self.num_heads):
-            out, att = self.attention(Q_heads[:, :, i, :],
-                                      K_heads[:, :, i, :],
-                                      V_heads[:, :, i, :])
+        for h in range(self.num_heads):
+            out, att = self.attention(Q[:, h], K[:, h], V[:, h])
             outputs.append(out)
-            weights.append(att)
+            weights_list.append(att)
 
-        outputs = np.stack(outputs, axis=1)  # (batch, heads, seq, d_k)
-        combined = self.combine_heads(outputs)
-        final_output = np.matmul(combined, self.W_O)
+        # Stack & reshape back to (batch, seq_len, d_model)
+        outputs = np.stack(outputs, axis=1)       # (batch, heads, seq_len, depth)
+        outputs = outputs.transpose(0, 2, 1, 3)   # (batch, seq_len, heads, depth)
+        batch, seq_len, heads, depth = outputs.shape
+        outputs = outputs.reshape(batch, seq_len, heads * depth)
 
-        return final_output, weights
+        weights_list = np.stack(weights_list, axis=1)  # (batch, heads, seq_len, seq_len)
+
+        return outputs, weights_list
+
