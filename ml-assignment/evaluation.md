@@ -2,125 +2,97 @@
 
 This document provides a clear and concise summary of the design decisions behind the Trigram Language Model implemented for the ML Intern Assessment. The focus is on correctness, efficiency, readability, and demonstrating practical understanding of classical NLP modeling.
 
-----
+---
 
 ### 1. Storage of N-gram Counts
 
-To efficiently learn and query trigram relationships, the model uses a nested dictionary structure:
+To efficiently learn and query trigram relationships, the model uses a nested dictionary representation:
 
-```counts[(w1, w2)][w3] = frequency```
+counts[(w1, w2)][w3] = frequency
 
-## Why this design?
 
-* Provides O(1) expected lookup for both training and generation.
+### Why this design?
 
-* Cleanly represents the mapping from a 2-word context to all possible next words.
+- Enables **O(1)** expected lookup for both training and generation.
+- Clean, intuitive mapping from a 2-word context to all possible next words.
+- Highly **extensible** — smoothing, pruning, serialization can be added easily.
+- Ideal for an assessment: readable, modular, and straightforward to debug.
 
-* Easier to debug and extend (e.g., smoothing, serialization, integer indexing).
-
-* Ideal for an academic/assessment setting where readability matters as much as performance.
-
-This decision balances clarity, speed, and extensibility, making the model simple to follow yet efficient in practice.
+This structure balances clarity, memory-efficiency, and performance, making the n-gram model technically sound and easy to follow.
 
 ---
 
 ### 2. Text Cleaning, Padding & Unknown Word Handling
-## Text Cleaning
 
-* Converts all text to lowercase for consistency and reduced vocabulary size.
+### Text Cleaning
+- Converts text to **lowercase** to avoid unnecessary vocabulary inflation.
+- Uses simple **whitespace tokenization**, ensuring deterministic behavior and easy testing.
 
-* Uses whitespace-based tokenization to keep parsing predictable and easy to test.
-
-## Padding
-
-Each line/sentence receives:
-
-* Two start tokens:``` <s>, <s>```
-
-* One end token:``` </s>```
+### Padding
+Each sentence is padded with:
+- `"<s>" , "<s>"` at the beginning  
+- `"</s>"` at the end  
 
 This ensures:
+- The model learns realistic sentence-start patterns.
+- Always-available context when generating initial tokens.
+- A clear stopping criterion during generation.
 
-* The model correctly learns how sentences start.
+### Unknown Words
+To prevent dead ends, the model uses a practical **backoff strategy**:
+1. Try trigram prediction `(w1, w2 → w3)`
+2. If unavailable → backoff to bigram `(w2 → w3)`
+3. If still unavailable → sample from the global unigram distribution
 
-* Valid contexts always exist during generation.
-
-* The model has a natural stopping point.
-
-## Unknown Words
-
-Instead of dropping unseen tokens, the model uses a tiered fallback strategy:
-
-1. Trigram context → if available
-
-2. Bigram backoff (based on last word)
-
-3. Unigram distribution from entire corpus
-
-This avoids dead ends during generation and keeps sampling robust without requiring heavy smoothing.
+This maintains fluency and robustness without requiring advanced smoothing.
 
 ---
 
 ### 3. Generation Logic & Probabilistic Sampling
 
-The ```generate()``` function is designed to be predictable, probabilistic, and interpretable.
+The `generate()` function is designed to be **probabilistic, deterministic when seeded, and corpus-dependent**.
 
 ### How Generation Works
+1. Start with context `(<s>, <s>)`
+2. Retrieve allowed next-word candidates
+3. Convert raw counts into probabilities
+4. Sample using **weighted random selection**
+5. Slide the window and continue until `</s>` or max-length
 
-1. Start with context:
+### Sampling Strategy
+Uses Python’s weighted selection (e.g., `random.choices`) to ensure:
+- Common continuations are more likely
+- Rare events still occur naturally
+- Output remains meaningful while still stochastic
 
-```(<s>, <s>)```
-
-
-2. Look up all possible next tokens for this context.
-
-3. Convert their counts into probabilities.
-
-4. Sample the next word using weighted random sampling.
-
-5. Slide the context window forward and continue.
-
-## Sampling Strategy
-
-Uses ```random.choices(population, weights=...) ```(or cumulative-sum walk) to ensure:
-
-* Higher-frequency continuations are more likely.
-
-* Rare but valid continuations still occur naturally.
-
-* Stops when the model emits ```</s> ```or reaches a length limit.
-
-## Why this matters
-
-This approach produces human-like, corpus-dependent text while staying faithful to statistical language modeling principles. It also demonstrates understanding of randomness, distributions, and generative modeling.
+### Why this matters
+This mirrors classical statistical language modeling, demonstrating understanding of:
+- Probability distributions
+- Context windows
+- Corpus-conditioned text generation
 
 ---
 
-## 4. Additional Design Decisions & Trade-offs
-## Precomputation
+### 4. Additional Design Decisions & Trade-offs
 
-* Stores total count per context after training → improves runtime performance during generation.
+### Precomputation
+- Total frequencies per context are cached post-training → **faster generation**.
 
-## Modular Code Design
+### Modular Architecture
+- `ngram_model.py`, `utils.py`, and `generate.py` separate training, preprocessing, and generation.
+- Supports easier unit testing and future extensions (e.g., add-k smoothing).
 
-* Training logic (fit), generation logic, utilities, and demo execution are kept separate.
+### No Smoothing by Default
+Simplicity is preserved intentionally:
+- Transparent probabilities
+- Predictable behavior on small corpora
+- Easy for reviewers to follow
 
-## Makes the code easier to maintain, test, and extend.
+### Reproducibility
+- Optional random seed ensures determinism, enabling repeatable experiments.
 
-## No Smoothing by Default
+---
 
-Smoothing methods (Add-K, Kneser–Ney) are intentionally omitted to maintain:
-
-* Transparent probability distributions
-
-* Predictable behavior for small corpora
-
-* Simplicity for assessment review
-
-The implementation can easily accommodate smoothing later.
-
-## Reproducibility
-
-* Supports user-defined seeds to generate the same sequence consistently, which is important for experiments and evaluation.
+Overall, the design prioritizes clarity, correctness, and extensibility while demonstrating strong understanding of classical NLP methods — making it both assessment-friendly and practical for real-world language modeling tasks.
 
 
