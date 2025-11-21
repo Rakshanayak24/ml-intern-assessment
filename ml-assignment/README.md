@@ -1,3 +1,17 @@
+# ML Intern Assessment – Trigram Language Model & Attention Mechanisms
+
+This repository contains implementations for:
+
+1. **Trigram Language Model** – trains on a text corpus and generates new sentences.  
+2. **Attention Mechanisms** – demonstrates Scaled Dot-Product and Multi-Head Attention using NumPy.
+
+---
+
+## Project Setup
+
+### Steps
+
+```yaml
 project: "ML Intern Assessment – Trigram Language Model & Attention Mechanisms"
 
 steps:
@@ -56,6 +70,7 @@ steps:
       - "Attention Weights Matrix"
       - "Multi-Head Attention Output"
       - "Per-head Attention Weight Shapes"
+
 
 
 
