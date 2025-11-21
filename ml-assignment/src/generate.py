@@ -1,20 +1,14 @@
 from src.ngram_model import TrigramModel
-
-def main():
-    model = TrigramModel()
-
-    with open("data/example_corpus.txt", "r") as f:
-        text = f.read()
-
-    model.fit(text)
-
-    generated = model.generate()
-    print("\nGenerated Text:\n")
-    print(generated)
+from src.utils import load_corpus
 
 if __name__ == "__main__":
-    main()
+    # Load tokens from corpus
+    tokens = load_corpus()
 
+    # Train trigram model
+    model = TrigramModel()
+    model.train(tokens)
 
-
-
+    print("\nGenerated Text:\n")
+    text = model.generate_paragraph(num_sentences=4)
+    print(text)
