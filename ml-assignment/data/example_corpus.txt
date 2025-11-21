@@ -3,16 +3,10 @@ It contains a few sentences to get you started.
 You can use this corpus to train and test your trigram model.
 Feel free to add more text to this file or use your own corpus.
 The more data you have, the better your model will be.
-
 This corpus is designed to train and evaluate a trigram language model for natural language generation.  
 The text focuses on technology, software engineering practices, and machine learning concepts to create a realistic dataset for experimentation.
-
 Modern software applications rely on clean architecture, reliable APIs, and scalable backend services. Developers work with cloud platforms, automation tools, and CI/CD pipelines to ensure smooth deployment workflows. Good engineering habits such as writing modular code and maintaining clear documentation contribute to long-term project stability.
-
 Artificial intelligence continues to influence product development across various industries. Machine learning models are used to enhance user experience, automate repetitive tasks, and extract insights from large datasets. Building robust AI systems involves data preprocessing, model training, evaluation, and deployment with monitoring pipelines.
-
 Natural language processing has seen rapid growth due to advancements in transformer architectures, generative models, and efficient training techniques. Applications such as summarization, classification, and conversational agents rely on high-quality textual data. Even simple n-gram models can help demonstrate the fundamentals of statistical language generation.
-
 This corpus provides a clean, domain-relevant foundation for experimenting with trigrams. You can extend it with additional technical content, product descriptions, or research summaries if you want a larger training dataset.
-
 Good luck!
