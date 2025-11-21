@@ -35,6 +35,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 ##Project Structure
+
 ml-assignment/
 │
 ├── src/
