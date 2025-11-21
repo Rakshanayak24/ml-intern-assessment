@@ -1,64 +1,82 @@
 import numpy as np
-from typing import Optional, Tuple
 
 
-def __call__(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray,
-             mask: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Apply multi-head attention.
+class ScaledDotProductAttention:
+    def __call__(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray, mask=None):
+        """
+        Compute scaled dot-product attention.
+        """
+        d_k = Q.shape[-1]
 
-    Args:
-        Q, K, V: (batch, seq_len, d_model)
-        mask: optional; broadcastable to (batch, seq_q, seq_k)
-              or (batch, 1, 1, seq_k)
+        # QK^T
+        scores = np.matmul(Q, K.transpose(0, 2, 1)) / np.sqrt(d_k)
 
-    Returns:
-        output: (batch, seq_q, d_model)
-        attn_weights: (batch, num_heads, seq_q, seq_k)
-    """
+        # Optional masking
+        if mask is not None:
+            scores = np.where(mask == 0, -1e9, scores)
 
-    batch_size = Q.shape[0]
+        # Softmax
+        attention_weights = np.exp(scores) / np.sum(np.exp(scores), axis=-1, keepdims=True)
 
-    # Linear projections
-    Q_lin = Q @ self.Wq
-    K_lin = K @ self.Wk
-    V_lin = V @ self.Wv
+        # Weighted sum
+        output = np.matmul(attention_weights, V)
 
-    # Split into heads
-    Q_heads = self._split_heads(Q_lin)
-    K_heads = self._split_heads(K_lin)
-    V_heads = self._split_heads(V_lin)
+        return output, attention_weights
 
-    # Expand 3D mask → 4D
-    if mask is not None and mask.ndim == 3:
-        mask = mask[:, None, :, :]
 
-    # Merge heads with batch dim
-    b, h, sq, d = Q_heads.shape
-    Q_resh = Q_heads.reshape(b * h, sq, d)
-    K_resh = K_heads.reshape(b * h, K_heads.shape[2], d)
-    V_resh = V_heads.reshape(b * h, V_heads.shape[2], d)
+class MultiHeadAttention:
+    def __init__(self, d_model: int, num_heads: int):
+        assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
 
-    # Prepare mask for vectorized attention
-    if mask is not None:
-        mask_resh = np.repeat(mask, self.num_heads, axis=1)
-        mask_resh = mask_resh.reshape(b * h, mask.shape[-2], mask.shape[-1])
-    else:
-        mask_resh = None
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads
 
-    # Apply scaled dot-product attention
-    output_resh, attn_resh = scaled_dot_product_attention(
-        Q_resh, K_resh, V_resh, mask=mask_resh
-    )
+        # Initialize weights
+        self.W_Q = np.random.randn(num_heads, d_model, self.d_k)
+        self.W_K = np.random.randn(num_heads, d_model, self.d_k)
+        self.W_V = np.random.randn(num_heads, d_model, self.d_k)
+        self.W_O = np.random.randn(num_heads * self.d_k, d_model)
 
-    # Reshape outputs back to (batch, heads, seq, depth)
-    output_heads = output_resh.reshape(b, h, sq, d)
-    attn_heads = attn_resh.reshape(b, h, sq, K_heads.shape[2])
+        self.attention = ScaledDotProductAttention()
 
-    # Combine heads
-    combined = self._combine_heads(output_heads)
+    def split_heads(self, X):
+        """
+        Split (batch, seq_len, d_model) into (batch, num_heads, seq_len, d_k)
+        """
+        batch, seq_len, d_model = X.shape
+        X_split = X.reshape(batch, seq_len, self.num_heads, self.d_k)
+        return X_split.transpose(0, 2, 1, 3)
 
-    # Final projection
-    out = combined @ self.Wo
+    def combine_heads(self, X):
+        """
+        Combine (batch, num_heads, seq_len, d_k) to (batch, seq_len, d_model)
+        """
+        batch, num_heads, seq_len, d_k = X.shape
+        X_transposed = X.transpose(0, 2, 1, 3)
+        return X_transposed.reshape(batch, seq_len, num_heads * d_k)
 
-    return out, attn_heads
+    def __call__(self, Q, K, V):
+        """
+        Forward pass
+        """
+        batch = Q.shape[0]
+
+        Q_heads = np.matmul(Q, self.W_Q)
+        K_heads = np.matmul(K, self.W_K)
+        V_heads = np.matmul(V, self.W_V)
+
+        outputs = []
+        weights = []
+
+        for i in range(self.num_heads):
+            out, att = self.attention(Q_heads[:, :, i, :],
+                                      K_heads[:, :, i, :],
+                                      V_heads[:, :, i, :])
+            outputs.append(out)
+            weights.append(att)
+
+        outputs = np.stack(outputs, axis=1)  # (batch, heads, seq, d_k)
+        combined = self.combine_heads(outputs)
+        final_output = np.matmul(combined, self.W_O)
+
+        return final_output, weights
