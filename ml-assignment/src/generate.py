@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-def generate(self, max_length=500):
+def generate(self, max_length=800):
     """Generate text using probabilistic trigram sampling."""
     if not self.model:
         return ""
