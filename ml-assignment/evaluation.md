@@ -17,11 +17,11 @@ text_cleaning_preprocessing:
     - "Converted text to lowercase"
     - "Whitespace-based tokenization"
   padding:
-    start_tokens: ["<START>", "<START>"]
-    end_token: "<END>"
+    start_tokens: ["<s>", "<s>"]
+    end_token: "</s>"
     reason: "Preserves sentence boundaries and enables early trigram formation"
   unknown_words:
-    token: "<UNK>"
+    token: "<unk>"
     reason: "Prevents zero-probability issues caused by unseen tokens"
 
 probability_computation:
@@ -32,19 +32,19 @@ probability_computation:
       - "Try trigram probability"
       - "Fallback to bigram"
       - "Fallback to unigram"
-      - "If all fail → return <UNK>"
-  reason:
-    - "Avoids dead ends during generation"
-    - "Simpler than full Kneser–Ney but effective for this task"
+      - "If all fail → return <unk>"
+    reason:
+      - "Avoids dead ends during generation"
+      - "Simpler than full Kneser–Ney but effective for this task"
 
 generation_strategy:
   process:
-    - "Start with context = [<START>, <START>]"
+    - "Start with context = [<s>, <s>]"
     - "Retrieve candidate next words based on trigram context"
     - "Build probability distribution from counts"
     - "Sample next token using numpy multinomial sampling"
     - "Slide context window forward"
-    - "Stop at <END> or max length"
+    - "Stop at </s> or max length"
   benefits:
     - "Produces non-deterministic, varied text"
     - "Works even with sparse datasets"
