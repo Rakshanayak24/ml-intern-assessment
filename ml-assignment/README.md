@@ -1,33 +1,30 @@
-**Trigram Language Model**
+Trigram Language Model
 
 This directory contains the core assignment files for the Trigram Language Model & Attention Mechanisms.
 
-**How to Run**
+How to Run
 
-This README explains how to run the text-suite and the example generator included in the assignment.
+This README explains how to run the test-suite and the example generator included in the assignment.
 
-**Prerequisites**
+Prerequisites
 
 Python 3.8+
 
-**Install dependencies:**
+Install dependencies
 git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
 cd ml-intern-assessment/ml-assignment
 python -m pip install -r requirements.txt
 
-**Create Virtual Environment (Optional)**
-
-**Linux / Mac:**
+Create Virtual Environment (Optional)
+Linux / Mac
 python -m venv venv
 source venv/bin/activate
 
-
-**Windows PowerShell:**
+Windows PowerShell
 python -m venv venv
 venv\Scripts\activate
 
-
-**Project Structure**
+Project Structure
 ml-assignment/
 │
 ├── src/
@@ -49,40 +46,40 @@ ml-assignment/
 ├── README.md
 └── requirements.txt
 
-
-**Part 1 — Run the Trigram Language Model**
+Part 1 — Run the Trigram Language Model
 
 This command trains the trigram model using example_corpus.txt and generates text.
 
 python -m src.generate
 
-**Custom Dataset**
+Custom Dataset
 
-To train on your own corpus, replace the file:
+Replace the default training file:
 
 data/example_corpus.txt
 
-Then run again:
+
+Then run:
 
 python -m src.generate
 
-**Part 2 — Run Scaled Dot-Product & Multi-Head Attention**
+Part 2 — Run Scaled Dot-Product & Multi-Head Attention
 
-This runs the NumPy-based attention demonstration.
+Run the NumPy-based attention mechanism demo:
 
 python -m attention.demo
 
-**Expected Output:**
+Expected Output
 
-* Running the attention module produces:
+Running the attention module produces:
 
-* Scaled Dot-Product Attention output matrix
+Scaled Dot-Product Attention Output Matrix
 
-* Attention weight matrix
+Attention Weights Matrix
 
-* Multi-head attention output
+Multi-Head Attention Output
 
-* Shapes of per-head attention weights
+Per-head Attention Weight Shapes
 
 
 
