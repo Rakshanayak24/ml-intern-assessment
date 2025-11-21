@@ -1,9 +1,4 @@
-"""
-Attention package exports for scaled dot-product and multi-head attention.
-"""
+from .attention import ScaledDotProductAttention, MultiHeadAttention
 
+__all__ = ["ScaledDotProductAttention", "MultiHeadAttention"]
 
-from .attention import scaled_dot_product_attention, MultiHeadAttention
-
-
-__all__ = ["scaled_dot_product_attention", "MultiHeadAttention"]
