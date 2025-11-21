@@ -80,3 +80,4 @@ conclusion:
     - "Clear modularity for both assignment parts"
     - "Stable and extendable design suitable for larger corpora"
 
+
