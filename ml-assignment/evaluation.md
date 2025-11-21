@@ -1,138 +1,119 @@
-Evaluation – Design Choices for Trigram Language Model
+## Evaluation
 
-This document summarizes the key design decisions made while implementing the Trigram Language Model and attention components in this assignment.
+This document provides a clear and concise summary of the design decisions behind the Trigram Language Model implemented for the ML Intern Assessment. The focus is on correctness, efficiency, readability, and demonstrating practical understanding of classical NLP modeling.
+---
+### 1. Storage of N-gram Counts
 
-1. N-gram Count Storage
+To efficiently learn and query trigram relationships, the model uses a nested dictionary structure:
 
-I used nested Python dictionaries to store unigram, bigram, and trigram counts:
+```counts[(w1, w2)][w3] = frequency```
 
-Unigrams: count[w1]
+## Why this design?
 
-Bigrams: count[(w1, w2)]
+* Provides O(1) expected lookup for both training and generation.
 
-Trigrams: count[(w1, w2, w3)]
+* Cleanly represents the mapping from a 2-word context to all possible next words.
 
-These structures provide:
+* Easier to debug and extend (e.g., smoothing, serialization, integer indexing).
 
-O(1) average-time lookup
+* Ideal for an academic/assessment setting where readability matters as much as performance.
 
-Simple iteration for probability computation
+This decision balances clarity, speed, and extensibility, making the model simple to follow yet efficient in practice.
+---
 
-Clean organization when computing conditional probabilities
+### 2. Text Cleaning, Padding & Unknown Word Handling
+## Text Cleaning
 
-Using tuples as keys also avoids string concatenation overhead and keeps the model implementation simple and efficient.
+* Converts all text to lowercase for consistency and reduced vocabulary size.
 
-2. Text Cleaning & Preprocessing
-Tokenization
+* Uses whitespace-based tokenization to keep parsing predictable and easy to test.
 
-Converted text to lowercase for normalization.
+## Padding
 
-Split on whitespace to keep tokenization simple and deterministic.
+Each line/sentence receives:
 
-Padding
+* Two start tokens:``` <s>, <s>```
 
-Added start tokens to preserve the structure of sentence boundaries:
-
-<START> <START> w1 w2 w3 ... <END>
-
-
-This ensures the first two trigrams have valid context and allows the model to learn proper sentence openings.
-
-Unknown Words
-
-To avoid sparsity, I replaced rare/unseen words with:
-
-<UNK>
-
-
-This makes generation stable by preventing zero-probability states.
-
-3. Probability Computation & Smoothing
-
-For each trigram (w1, w2 → w3):
-
-P(w3 | w1, w2) = count(w1, w2, w3) / count(w1, w2)
-
-
-If a condition never appeared, I used a backoff strategy:
-
-Backoff to bigram
-
-Backoff to unigram
-
-If all fail → sample <UNK>
-
-This prevents dead ends during generation while keeping the model simple and interpretable without full Kneser–Ney smoothing.
-
-4. Generate Function & Sampling Strategy
-
-The generate_sentence() function:
-
-Starts with:
-
-context = ["<START>", "<START>"]
-
-
-Looks up all valid trigrams for this context.
-
-Builds a probability distribution.
-
-Samples the next token using multinomial sampling (np.random.choice).
-
-Shifts context:
-
-context = [context[1], next_word]
-
-
-Stops at <END> or when max length is reached.
+* One end token:``` </s>```
 
 This ensures:
 
-Diversity in generated text
+* The model correctly learns how sentences start.
 
-Non-deterministic behavior
+* Valid contexts always exist during generation.
 
-Smooth continuation even with sparse data
+* The model has a natural stopping point.
 
-The paragraph generator simply calls the sentence generator repeatedly and joins the results.
+## Unknown Words
 
-5. Additional Design Considerations
-Efficient Counting
+Instead of dropping unseen tokens, the model uses a tiered fallback strategy:
 
-Using a single pass over the corpus to build all n-grams improved speed and memory locality.
+1. Trigram context → if available
 
-Corpus Flexibility
+2. Bigram backoff (based on last word)
 
-I kept the corpus loading logic minimal so users can replace example_corpus.txt with large datasets without modifying code.
+3. Unigram distribution from entire corpus
 
-Modular Architecture
+This avoids dead ends during generation and keeps sampling robust without requiring heavy smoothing.
+---
+### 3. Generation Logic & Probabilistic Sampling
 
-Part 1 and Part 2 (attention) are cleanly separated:
+The ```generate()``` function is designed to be predictable, probabilistic, and interpretable.
 
-src/ → Trigram model
+### How Generation Works
 
-attention/ → Scaled Dot-Product + Multi-Head Attention
+1. Start with context:
 
-Each has its own demo runner and can be evaluated independently.
+```(<s>, <s>)```
 
-6. Attention Module (Part 2)
 
-Although not required for the trigram evaluation, the attention module was implemented using:
+2. Look up all possible next tokens for this context.
 
-Pure NumPy (no PyTorch/TensorFlow)
+3. Convert their counts into probabilities.
 
-A vectorized Scaled Dot-Product Attention
+4. Sample the next word using weighted random sampling.
 
-A Multi-Head Attention layer with:
+5. Slide the context window forward and continue.
 
-Head splitting
+## Sampling Strategy
 
-Per-head attention computation
+Uses ```random.choices(population, weights=...) ```(or cumulative-sum walk) to ensure:
 
-Head concatenation
+* Higher-frequency continuations are more likely.
 
-Final linear projection
+* Rare but valid continuations still occur naturally.
 
-This demonstrates practical understanding of core transformer components.
+* Stops when the model emits ```</s> ```or reaches a length limit.
+
+## Why this matters
+
+This approach produces human-like, corpus-dependent text while staying faithful to statistical language modeling principles. It also demonstrates understanding of randomness, distributions, and generative modeling.
+---
+## 4. Additional Design Decisions & Trade-offs
+## Precomputation
+
+* Stores total count per context after training → improves runtime performance during generation.
+
+## Modular Code Design
+
+* Training logic (fit), generation logic, utilities, and demo execution are kept separate.
+
+## Makes the code easier to maintain, test, and extend.
+
+## No Smoothing by Default
+
+Smoothing methods (Add-K, Kneser–Ney) are intentionally omitted to maintain:
+
+* Transparent probability distributions
+
+* Predictable behavior for small corpora
+
+* Simplicity for assessment review
+
+The implementation can easily accommodate smoothing later.
+
+## Reproducibility
+
+* Supports user-defined seeds to generate the same sequence consistently, which is important for experiments and evaluation.
 
 
