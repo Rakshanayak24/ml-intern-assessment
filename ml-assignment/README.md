@@ -23,7 +23,7 @@ git clone https://github.com/Rakshanayak24/ml-intern-assessment.git
 cd ml-intern-assessment/ml-assignment
 python -m pip install -r requirements.txt
 ```
-##Create Virtual Environment (Optional)
+## Create Virtual Environment (Optional)
 Linux / Mac
 ```powershell
 python -m venv venv
@@ -34,8 +34,10 @@ Windows PowerShell
 python -m venv venv
 venv\Scripts\activate
 ```
-##Project Structure
 
+## Project Structure
+
+```text
 ml-assignment/
 │
 ├── src/
@@ -57,8 +59,9 @@ ml-assignment/
 ├── evaluation.md
 ├── README.md
 └── requirements.txt
+```
 
-##Custom Dataset
+## Custom Dataset
 -------------------------------
 To train on your own dataset:
 
@@ -70,21 +73,21 @@ data/example_corpus.txt
 ```powershell
 python -m src.generate
 ```
-##Part 2 — Run Scaled Dot-Product & Multi-Head Attention
+## Part 2 — Run Scaled Dot-Product & Multi-Head Attention
 
 This runs the NumPy-based attention demonstration.
 ```powershell
 python -m attention.demo
 ```
 
-##Expected Output
+## Expected Output
 
 Running the attention module produces:
 
-*Scaled Dot-Product Attention output matrix
+* Scaled Dot-Product Attention output matrix
 
-*Attention weight matrix
+* Attention weight matrix
 
-*Multi-head attention output
+* Multi-head attention output
 
-*Shapes of per-head attention weights
+* Shapes of per-head attention weights
