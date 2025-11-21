@@ -1,47 +1,54 @@
 """
-Demo for scaled_dot_product_attention.
-
-Shows a small example with batch size 1 and prints the attention weights and output.
-Run:
-    python task2_attention/demo_attention.py
+Demo script for Scaled Dot-Product Attention and Multi-Head Attention.
+This file shows recruiters that everything works end-to-end.
 """
+
 import numpy as np
-from task2_attention.attention import scaled_dot_product_attention
+from attention import scaled_dot_product_attention, MultiHeadAttention
 
-def demo():
-    # Simple example
-    # batch = 1, seq_len = 2, d_k = d_v = 3
-    Q = np.array([[[1.0, 0.0, 1.0],
-                   [0.0, 1.0, 0.0]]])  # shape (1,2,3)
 
-    K = np.array([[[1.0, 0.0, 1.0],
-                   [0.0, 1.0, 0.0]]])  # shape (1,2,3)
+def main():
 
-    V = np.array([[[1.0, 2.0, 3.0],
-                   [4.0, 5.0, 6.0]]])  # shape (1,2,3)
+    print("\n===== SCALED DOT-PRODUCT ATTENTION DEMO =====\n")
+
+    # Example dimensions
+    batch = 1
+    seq_len = 4
+    d_model = 8
+
+    # Toy Q, K, V
+    Q = np.random.randn(batch, seq_len, d_model)
+    K = np.random.randn(batch, seq_len, d_model)
+    V = np.random.randn(batch, seq_len, d_model)
 
     # No mask
-    output, attn_weights = scaled_dot_product_attention(Q, K, V, mask=None)
+    out, attn = scaled_dot_product_attention(Q, K, V)
 
-    print("Queries (Q):\n", Q)
-    print("\nKeys (K):\n", K)
-    print("\nValues (V):\n", V)
-    print("\nAttention weights (batch, seq_q, seq_k):\n", attn_weights)
-    print("\nOutput (batch, seq_q, d_v):\n", output)
+    print("Q shape:", Q.shape)
+    print("K shape:", K.shape)
+    print("V shape:", V.shape)
+    print("Attention output shape:", out.shape)
+    print("Attention weights shape:", attn.shape)
+    print("\nAttention Weights:\n", attn)
 
-    # Example with mask (mask out second key for the second query)
-    # mask shape (batch, seq_q, seq_k)
-    mask = np.array([[[1, 1],
-                      [1, 0]]])  # second query should not attend to second key
 
-    output_masked, attn_weights_masked = scaled_dot_product_attention(Q, K, V, mask=mask)
-    print("\n--- With mask applied ---")
-    print("\nMask:\n", mask)
-    print("\nAttention weights (masked):\n", attn_weights_masked)
-    print("\nOutput (masked):\n", output_masked)
+    print("\n===== MULTI-HEAD ATTENTION DEMO =====\n")
+
+    num_heads = 2
+    mha = MultiHeadAttention(d_model=d_model, num_heads=num_heads)
+
+    # Example mask (optional)
+    mask = np.zeros((batch, seq_len, seq_len))
+    mask[:, :, -1] = -1e9  # block last token
+
+    out_mh, attn_mh = mha(Q, K, V, mask=mask)
+
+    print("Multi-head output shape:", out_mh.shape)
+    print("Multi-head attention weights shape:", attn_mh.shape)
+    print("\nPer-Head Attention Weights:\n", attn_mh)
+
+    print("\nDemo complete — everything executed successfully.\n")
+
 
 if __name__ == "__main__":
-    demo()
-
-
-
+    main()
