@@ -1,27 +1,38 @@
-import os
-from src.ngram_model import TrigramModel
+import random
+import numpy as np
 
-def main():
-    model = TrigramModel()
+def generate(self, max_length=200):
+    """Generate text using probabilistic trigram sampling."""
+    if not self.model:
+        return ""
 
-    # Locate example_corpus.txt regardless of current working directory
-    base_dir = os.path.dirname(os.path.abspath(__file__))  # folder containing generate.py
-    project_root = os.path.dirname(base_dir)               # go to project root
-    data_path = os.path.join(project_root, "data", "example_corpus.txt")
+    # Start with padding tokens
+    w1, w2 = "<s>", "<s>"
+    generated = []
 
-    if not os.path.exists(data_path):
-        print(f"Error: Cannot find example_corpus.txt at: {data_path}")
-        return
+    for _ in range(max_length):
+        key = (w1, w2)
+        if key not in self.model:
+            break
 
-    with open(data_path, "r", encoding="utf-8") as f:
-        text = f.read()
+        next_words = self.model[key]
+        words = list(next_words.keys())
+        counts = np.array(list(next_words.values()), dtype=float)
 
-    model.fit(text)
-    generated_text = model.generate()
+        # Convert counts → probability distribution
+        probs = counts / counts.sum()
 
-    print("\nGenerated Text:\n")
-    print(generated_text)
+        # Sample probabilistically instead of greedy max
+        next_word = np.random.choice(words, p=probs)
 
-if __name__ == "__main__":
-    main()
+        if next_word == "</s>":
+            break
+
+        generated.append(next_word)
+
+        # Shift context
+        w1, w2 = w2, next_word
+
+    return " ".join(generated)
+
 
